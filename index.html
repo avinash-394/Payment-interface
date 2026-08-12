@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>En Passant Recruitment</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f5f5;
+            color: #111;
+        }
+
+        .container {
+            width: min(92%, 700px);
+            margin: 40px auto;
+        }
+
+        .header {
+            margin-bottom: 28px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+            font-size: 30px;
+        }
+
+        .header p {
+            margin: 0;
+            color: #666;
+        }
+
+        .progress {
+            display: flex;
+            gap: 7px;
+            margin-bottom: 28px;
+        }
+
+        .progress span {
+            height: 5px;
+            flex: 1;
+            background: #ddd;
+            border-radius: 10px;
+        }
+
+        .progress span.active {
+            background: #111;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 14px;
+            padding: 28px;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        h2 {
+            margin: 0 0 8px;
+            font-size: 24px;
+        }
+
+        .description {
+            color: #666;
+            margin: 0 0 26px;
+        }
+
+        .field {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #111;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #777;
+            margin-top: 8px;
+        }
+
+        .choices {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .choice {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            background: #fff;
+            transition: 0.15s;
+        }
+
+        .choice:hover {
+            border-color: #777;
+        }
+
+        .choice.selected {
+            border: 2px solid #111;
+            padding: 14px;
+            background: #f7f7f7;
+        }
+
+        .choice input {
+            display: none;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 8px;
+            padding: 13px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .back {
+            background: #eee;
+            color: #111;
+        }
+
+        .next {
+            background: #111;
+            color: white;
+            margin-left: auto;
+        }
+
+        .payment-box {
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .fee {
+            font-size: 30px;
+            font-weight: 700;
+            margin: 8px 0 20px;
+        }
+
+        .upi-id {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            margin-bottom: 18px;
+            word-break: break-all;
+        }
+
+        .pay-button {
+            width: 100%;
+            background: #111;
+            color: white;
+            font-size: 16px;
+            padding: 15px;
+        }
+
+        .payment-note {
+            margin-top: 12px;
+            color: #666;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .success {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .success-icon {
+            font-size: 45px;
+            margin-bottom: 12px;
+        }
+
+        .summary {
+            background: #f7f7f7;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 8px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .summary-row:last-child {
+            border-bottom: 0;
+        }
+
+        .error {
+            color: #c00;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px auto;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .choices {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>En Passant Recruitment</h1>
+        <p>Complete your registration to join the community.</p>
+    </div>
+
+    <div class="progress">
+        <span class="active"></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="card">
+
+        <!-- STEP 1 -->
+        <section class="step active" id="step1">
+            <h2>Applicant Details</h2>
+            <p class="description">Provide your contact information.</p>
+
+            <div class="field">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" placeholder="Your Name" autocomplete="name">
+                <div class="error" id="nameError">Please enter your full name.</div>
+            </div>
+
+            <div class="field">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="youremail@gmail.com" autocomplete="email">
+                <div class="error" id="emailError">Please enter a valid email address.</div>
+            </div>
+
+            <div class="field">
+                <label for="collegeEmail">College Email</label>
+                <input type="email" id="collegeEmail" placeholder="name.admNo@abes.ac.in">
+                <div class="error" id="collegeEmailError">Please enter a valid @abes.ac.in email.</div>
+            </div>
+
+            <div class="field">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" placeholder="+91 00000 00000" autocomplete="tel">
+                <div class="error" id="phoneError">Please enter a valid 10-digit phone number.</div>
+            </div>
+
+            <div class="hint">
+                We will create your account upon submission if an account does not exist.
+            </div>
+
+            <div class="actions">
+                <button class="next" onclick="nextStep(1)">Continue</button>
+            </div>
+        </section>
+
+        <!-- STEP 2 -->
+        <section class="step" id="step2">
+            <h2>Primary Choice</h2>
+            <p class="description">Select your main department of interest.</p>
+
+            <div class="choices" id="primaryChoices">
+                <div class="choice" data-value="Community Engagement" onclick="selectChoice('primary', this)">
+                    Community Engagement
+                </div>
+                <div class="choice" data-value="Content" onclick="selectChoice('primary', this)">
+                    Content
+                </div>
+                <div class="choice" data-value="Event" onclick="selectChoice('primary', this)">
+                    Event
+                </div>
+                <div class="choice" data-value="Graphics" onclick="selectChoice('primary', this)">
+                    Graphics
+                </div>
+                <div class="choice" data-value="Media" onclick="selectChoice('primary', this)">
+                    Media
+                </div>
+                <div class="choice" data-value="Website" onclick="selectChoice('primary', this)">
+                    Website
+                </div>
+            </div>
+
+            <div class="error" id="primaryError">Please select a primary choice.</div>
+
+            <div class="actions">
+                <button class="back" onclick="previousStep(2)">Back</button>
+                <button class="next" onclick="nextStep(2)">Continue</button>
+            </div>
+        </section>
+
+        <!-- STEP 3 -->
+        <section class="step" id="step3">
+            <h2>Secondary Choice</h2>
+            <p class="description">Select an optional secondary department.</p>
+
+            <div class="choices" id="secondaryChoices">
+                <div class="choice" data-value="None (Skip)" onclick="selectChoice('secondary', this)">
+                    None (Skip)
+                </div>
+                <div class="choice" data-value="Community Engagement" onclick="selectChoice('secondary', this)">
+                    Community Engagement
+                </div>
+                <div class="choice" data-value="Content" onclick="selectChoice('secondary', this)">
+                    Content
+                </div>
+                <div class="choice" data-value="Event" onclick="selectChoice('secondary', this)">
+                    Event
+                </div>
+                <div class="choice" data-value="Graphics" onclick="selectChoice('secondary', this)">
+                    Graphics
+                </div>
+                <div class="choice" data-value="Media" onclick="selectChoice('secondary', this)">
+                    Media
+                </div>
+                <div class="choice" data-value="Website" onclick="selectChoice('secondary', this)">
+                    Website
+                </div>
+            </div>
+
+            <div class="error" id="secondaryError">Please select a secondary choice or choose None (Skip).</div>
+
+            <div class="actions">
+                <button class="back" onclick="previousStep(3)">Back</button>
+                <button class="next" onclick="nextStep(3)">Continue</button>
+            </div>
+        </section>
+
+        <!-- STEP 4 -->
+        <section class="step" id="step4">
+            <h2>Review & Pay</h2>
+            <p class="description">Finalize your registration.</p>
+
+            <div class="summary">
+                <div class="summary-row">
+                    <strong>Name</strong>
+                    <span id="reviewName"></span>
+                </div>
+                <div class="summary-row">
+                    <strong>Email</strong>
+                    <span id="reviewEmail"></span>
+                </div>
+                <div class="summary-row">
+                    <strong>College Email</strong>
+                    <span id="reviewCollegeEmail"></span>
+                </div>
+                <div class="summary-row">
+                    <strong>Phone</strong>
+                    <span id="reviewPhone"></span>
+                </div>
+                <div class="summary-row">
+                    <strong>Primary</strong>
+                    <span id="reviewPrimary"></span>
+                </div>
+                <div class="summary-row">
+                    <strong>Secondary</strong>
+                    <span id="reviewSecondary"></span>
+                </div>
+            </div>
+
+            <div class="payment-box">
+                <h3>Registration Fee</h3>
+                <div class="fee">₹100</div>
+
+                <p>Please pay using the button below. Your UPI app will open with the amount and receiver already filled in.</p>
+
+                <div class="upi-id">
+                    UPI ID: kaustubhsharma434@okaxis
+                </div>
+
+                <button class="pay-button" onclick="pay()">
+                    Pay ₹100 via UPI
+                </button>
+
+                <div class="payment-note">
+                    On supported mobile devices, this button opens your UPI app directly.
+                    The payment amount and UPI ID are pre-filled.
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="back" onclick="previousStep(4)">Back</button>
+                <button class="next" onclick="completeRegistration()">I Have Completed Payment</button>
+            </div>
+        </section>
+
+        <!-- SUCCESS -->
+        <section class="step" id="success">
+            <div class="success">
+                <div class="success-icon">✓</div>
+                <h2>Registration Submitted</h2>
+                <p class="description">
+                    Thank you for registering for En Passant Recruitment.
+                </p>
+                <p>
+                    Your payment should be completed before submitting the registration.
+                </p>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<script>
+    const registration = {
+        name: "",
+        email: "",
+        collegeEmail: "",
+        phone: "",
+        primary: "",
+        secondary: ""
+    };
+
+    let currentStep = 1;
+
+    // Change this amount if your registration fee changes.
+    const PAYMENT_AMOUNT = "100";
+
+    // Change this UPI ID if the receiver changes.
+    const UPI_ID = "kaustubhsharma434@okaxis";
+
+    function showStep(step) {
+        document.querySelectorAll(".step").forEach(section => {
+            section.classList.remove("active");
+        });
+
+        document.getElementById(
+            step === 5 ? "success" : "step" + step
+        ).classList.add("active");
+
+        document.querySelectorAll(".progress span").forEach((bar, index) => {
+            bar.classList.toggle("active", index < Math.min(step, 4));
+        });
+
+        currentStep = step;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function nextStep(step) {
+        if (step === 1 && !validateApplicant()) return;
+
+        if (step === 2 && !registration.primary) {
+            document.getElementById("primaryError").style.display = "block";
+            return;
+        }
+
+        if (step === 3 && !registration.secondary) {
+            document.getElementById("secondaryError").style.display = "block";
+            return;
+        }
+
+        if (step === 3) {
+            updateReview();
+        }
+
+        showStep(step + 1);
+    }
+
+    function previousStep(step) {
+        showStep(step - 1);
+    }
+
+    function validateApplicant() {
+        let valid = true;
+
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const collegeEmail = document.getElementById("collegeEmail").value.trim();
+        const phone = document.getElementById("phone").value.trim();
+
+        document.querySelectorAll(".error").forEach(e => e.style.display = "none");
+
+        if (name === "") {
+            document.getElementById("nameError").style.display = "block";
+            valid = false;
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            document.getElementById("emailError").style.display = "block";
+            valid = false;
+        }
+
+        if (!/^[^\s@]+@abes\.ac\.in$/i.test(collegeEmail)) {
+            document.getElementById("collegeEmailError").style.display = "block";
+            valid = false;
+        }
+
+        const cleanPhone = phone.replace(/\D/g, "");
+
+        if (
+            cleanPhone.length !== 10 &&
+            !(cleanPhone.length === 12 && cleanPhone.startsWith("91"))
+        ) {
+            document.getElementById("phoneError").style.display = "block";
+            valid = false;
+        }
+
+        if (!valid) return false;
+
+        registration.name = name;
+        registration.email = email;
+        registration.collegeEmail = collegeEmail;
+        registration.phone = cleanPhone.slice(-10);
+
+        return true;
+    }
+
+    function selectChoice(type, element) {
+        const parent = element.parentElement;
+
+        parent.querySelectorAll(".choice").forEach(choice => {
+            choice.classList.remove("selected");
+        });
+
+        element.classList.add("selected");
+
+        registration[type] = element.dataset.value;
+
+        const error = document.getElementById(
+            type === "primary" ? "primaryError" : "secondaryError"
+        );
+
+        error.style.display = "none";
+    }
+
+    function updateReview() {
+        document.getElementById("reviewName").textContent = registration.name;
+        document.getElementById("reviewEmail").textContent = registration.email;
+        document.getElementById("reviewCollegeEmail").textContent = registration.collegeEmail;
+        document.getElementById("reviewPhone").textContent = "+91 " + registration.phone;
+        document.getElementById("reviewPrimary").textContent = registration.primary;
+        document.getElementById("reviewSecondary").textContent = registration.secondary;
+    }
+
+    function pay() {
+        const transactionNote =
+            registration.phone + "_" +
+            registration.name.replace(/\s+/g, "");
+
+        const upiLink =
+            "upi://pay" +
+            "?pa=" + encodeURIComponent(UPI_ID) +
+            "&pn=" + encodeURIComponent("En Passant Recruitment") +
+            "&am=" + encodeURIComponent(PAYMENT_AMOUNT) +
+            "&cu=INR" +
+            "&tn=" + encodeURIComponent(transactionNote);
+
+        window.location.href = upiLink;
+    }
+
+    function completeRegistration() {
+        /*
+         * IMPORTANT:
+         * This only shows the confirmation screen.
+         * A static HTML website cannot verify whether a UPI payment
+         * was actually completed.
+         *
+         * Connect this function to your backend / Google Apps Script /
+         * database if you want to store the registration and verify payment.
+         */
+
+        showStep(5);
+    }
+
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            if (currentStep === 1) nextStep(1);
+            else if (currentStep === 2) nextStep(2);
+            else if (currentStep === 3) nextStep(3);
+        }
+    });
+</script>
+
+</body>
+</html>
